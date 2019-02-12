@@ -1,0 +1,71 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+
+    ext {
+        springBootVersion = '2.1.2.RELEASE'
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+    
+}
+
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'io.spring.dependency-management'
+
+
+group 'juergenwewer.kafka.connect'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    flatDir {
+        dirs '/home/wewer/workspace/kafka-connect-mq-source/target'
+    }
+    flatDir {
+        dirs '/home/wewer/workspace/eks-common/eksconnect-common/build/libs'
+    }
+}
+
+configurations {
+    // configuration that holds jars to include in the jar
+    extraLibs
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+
+    compile group: 'org.apache.kafka', name: 'kafka-clients', version: '1.1.0'
+    compile group: 'org.apache.kafka', name: 'connect-api', version: '1.1.0'
+    compile group: 'org.apache.kafka', name: 'connect-transforms', version: '1.1.0'
+    compile group: 'com.ibm.eventstreams.connect', name: 'kafka-connect-mq-source', version: '1.0.2'
+    compile group: 'com.ibm.mq', name: 'com.ibm.mq.allclient', version: '9.1.1.0'
+    compile group: 'com.itergo.eksconnect.core', name: 'eksconnect-common', version: '1.0.0-RELEASE'
+    compile group: 'javax.jms', name: 'javax.jms-api', version: '2.0.1'
+
+    extraLibs group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
+
+    extraLibs group: 'com.itergo.eksconnect.core', name: 'eksconnect-common', version: '1.0.0-RELEASE'
+    extraLibs group: 'org.springframework', name: 'spring-core', version: '5.1.2.RELEASE'
+    extraLibs group: 'com.google.code.gson', name: 'gson', version: '2.8.5'
+    extraLibs group: 'com.fasterxml.jackson.module', name: 'jackson-module-jsonSchema', version: '2.9.0'
+
+
+    configurations.compile.extendsFrom(configurations.extraLibs)
+
+}
+
+
+jar {
+    from {
+        configurations.extraLibs.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
